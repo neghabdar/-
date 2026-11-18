@@ -1,0 +1,246 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.nickname is string && data.nickname.size() >= 2 && data.nickname.size() <= 30 &&
+             data.selectedCharacterId is string && data.selectedCharacterId.size() >= 1 && data.selectedCharacterId.size() <= 64 &&
+             (!('departmentType' in data) || (data.departmentType is string && data.departmentType.size() <= 64)) &&
+             data.role in ['player', 'admin'] &&
+             data.authoritativeXp is int && data.authoritativeXp >= 0 &&
+             data.authoritativeCoins is int && data.authoritativeCoins >= 0 &&
+             data.authoritativeMedals is int && data.authoritativeMedals >= 0 &&
+             data.authoritativeScore is int && data.authoritativeScore >= 0;
+    }
+
+    function isValidGameSession(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.operationId is string && data.operationId.size() >= 8 && data.operationId.size() <= 128 &&
+             data.stageId is int && data.stageId >= 1 && data.stageId <= 30 &&
+             data.miniGameType in ['VAULT_PUZZLE', 'MISSING_FILE', 'MONSTER_BATTLE'] &&
+             data.rawScore is int && data.rawScore >= 0 && data.rawScore <= 2000 &&
+             data.xpClaimed is int && data.xpClaimed >= 0 && data.xpClaimed <= 500 &&
+             data.coinsClaimed is int && data.coinsClaimed >= 0 && data.coinsClaimed <= 250 &&
+             data.rating in ['BRONZE', 'SILVER', 'GOLD'] &&
+             data.verificationStatus in ['PENDING', 'VERIFIED', 'REJECTED'] &&
+             (!('durationSeconds' in data) || (data.durationSeconds is int && data.durationSeconds >= 0)) &&
+             (!('correctCount' in data) || (data.correctCount is int && data.correctCount >= 0)) &&
+             (!('totalCount' in data) || (data.totalCount is int && data.totalCount >= 0));
+    }
+
+    function isValidAnswerRecord(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.sessionId is string && data.sessionId.size() >= 1 && data.sessionId.size() <= 128 &&
+             data.questionId is string && data.questionId.size() >= 1 && data.questionId.size() <= 128 &&
+             data.selectedOptionIndex is int && data.selectedOptionIndex >= 0 && data.selectedOptionIndex <= 10 &&
+             (!('responseMillis' in data) || (data.responseMillis is int && data.responseMillis >= 0));
+    }
+
+    function isValidInventoryRecord(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.itemKey is string && data.itemKey.size() >= 1 && data.itemKey.size() <= 64 &&
+             data.equipped is bool;
+    }
+
+    match /admins/{uid} {
+      allow get: if isSignedIn() && request.auth.uid == uid;
+      allow list, create, update, delete: if false;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().role == 'player' &&
+                       incoming().authoritativeXp == 0 &&
+                       incoming().authoritativeCoins == 0 &&
+                       incoming().authoritativeMedals == 0 &&
+                       incoming().authoritativeScore == 0 &&
+                       incoming().keys().hasAll(['userId', 'nickname', 'selectedCharacterId', 'role', 'authoritativeXp', 'authoritativeCoins', 'authoritativeMedals', 'authoritativeScore', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'nickname', 'selectedCharacterId', 'departmentType', 'role', 'authoritativeXp', 'authoritativeCoins', 'authoritativeMedals', 'authoritativeScore', 'createdAt', 'updatedAt']) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().userId == existing().userId && (
+                         isAdmin() ||
+                         (request.auth.uid == userId &&
+                          incoming().role == existing().role &&
+                          incoming().authoritativeXp == existing().authoritativeXp &&
+                          incoming().authoritativeCoins == existing().authoritativeCoins &&
+                          incoming().authoritativeMedals == existing().authoritativeMedals &&
+                          incoming().authoritativeScore == existing().authoritativeScore &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['nickname', 'selectedCharacterId', 'departmentType', 'updatedAt']))
+                       );
+
+      allow delete: if isAdmin();
+    }
+
+    match /gameSessions/{sessionId} {
+      allow get: if isSignedIn() && isValidId(sessionId) && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(sessionId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().verificationStatus == 'PENDING' &&
+                       incoming().keys().hasAll(['userId', 'operationId', 'stageId', 'miniGameType', 'rawScore', 'xpClaimed', 'coinsClaimed', 'rating', 'verificationStatus', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'operationId', 'stageId', 'miniGameType', 'rawScore', 'xpClaimed', 'coinsClaimed', 'rating', 'durationSeconds', 'correctCount', 'totalCount', 'verificationStatus', 'createdAt', 'updatedAt']) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidGameSession(incoming());
+
+      allow update: if isSignedIn() &&
+                       isValidId(sessionId) &&
+                       isAdmin() &&
+                       isValidGameSession(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time;
+
+      allow delete: if false;
+    }
+
+    match /answers/{answerId} {
+      allow get: if isSignedIn() && isValidId(answerId) && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                       isValidId(answerId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'sessionId', 'questionId', 'selectedOptionIndex', 'createdAt']) &&
+                       incoming().keys().hasOnly(['userId', 'sessionId', 'questionId', 'selectedOptionIndex', 'responseMillis', 'createdAt']) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       isValidAnswerRecord(incoming());
+
+      allow update, delete: if false;
+    }
+
+    match /scores/{scoreId} {
+      allow get: if isSignedIn() && isValidId(scoreId) && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /rewards/{rewardId} {
+      allow get: if isSignedIn() && isValidId(rewardId) && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /achievements/{achievementId} {
+      allow get: if isSignedIn() && isValidId(achievementId) && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /inventory/{itemId} {
+      allow get: if isSignedIn() && isValidId(itemId) && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create, delete: if isAdmin();
+      allow update: if isSignedIn() &&
+                       isValidId(itemId) &&
+                       isValidInventoryRecord(incoming()) &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time && (
+                         isAdmin() ||
+                         (existing().userId == request.auth.uid &&
+                          incoming().userId == existing().userId &&
+                          incoming().itemKey == existing().itemKey &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['equipped', 'updatedAt']))
+                       );
+    }
+
+    match /leaderboards/{entryId} {
+      allow get: if isSignedIn() && isValidId(entryId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /characters/{characterId} {
+      allow get: if isSignedIn() && isValidId(characterId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /worlds/{worldId} {
+      allow get: if isSignedIn() && isValidId(worldId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /stages/{stageId} {
+      allow get: if isSignedIn() && isValidId(stageId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /missions/{missionId} {
+      allow get: if isSignedIn() && isValidId(missionId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /questions/{questionId} {
+      // Never expose correct answers to public clients
+      allow get, list, create, update, delete: if isAdmin();
+    }
+
+    match /publishedQuestions/{questionId} {
+      allow get: if isSignedIn() && isValidId(questionId) && resource.data.publicationStatus == 'PUBLISHED';
+      allow list: if isSignedIn() && resource.data.publicationStatus == 'PUBLISHED';
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /announcements/{announcementId} {
+      allow get: if isSignedIn() && isValidId(announcementId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow get: if isSignedIn() && isValidId(settingId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /auditLogs/{logId} {
+      allow get, list: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+  }
+}

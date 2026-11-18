@@ -1,0 +1,254 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Player profile and authoritative progression snapshot in Parsminda",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID" },
+        "nickname": { "type": "string", "description": "Persian display nickname (non-PII)" },
+        "selectedCharacterId": { "type": "string", "description": "Selected hero identifier" },
+        "departmentType": { "type": "string", "description": "Optional Social Security community unit type" },
+        "role": { "type": "string", "enum": ["player", "admin"] },
+        "authoritativeXp": { "type": "integer" },
+        "authoritativeCoins": { "type": "integer" },
+        "authoritativeMedals": { "type": "integer" },
+        "authoritativeScore": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Must be FieldValue.serverTimestamp()" }
+      },
+      "required": ["userId", "nickname", "selectedCharacterId", "role", "authoritativeXp", "authoritativeCoins", "authoritativeMedals", "authoritativeScore", "createdAt", "updatedAt"]
+    },
+    "GameSession": {
+      "title": "GameSession",
+      "description": "Idempotent gameplay session submitted for backend verification",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "operationId": { "type": "string" },
+        "stageId": { "type": "integer" },
+        "miniGameType": { "type": "string", "enum": ["VAULT_PUZZLE", "MISSING_FILE", "MONSTER_BATTLE"] },
+        "rawScore": { "type": "integer" },
+        "xpClaimed": { "type": "integer" },
+        "coinsClaimed": { "type": "integer" },
+        "rating": { "type": "string", "enum": ["BRONZE", "SILVER", "GOLD"] },
+        "durationSeconds": { "type": "integer" },
+        "correctCount": { "type": "integer" },
+        "totalCount": { "type": "integer" },
+        "verificationStatus": { "type": "string", "enum": ["PENDING", "VERIFIED", "REJECTED"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "operationId", "stageId", "miniGameType", "rawScore", "xpClaimed", "coinsClaimed", "rating", "verificationStatus", "createdAt", "updatedAt"]
+    },
+    "AnswerRecord": {
+      "title": "AnswerRecord",
+      "description": "Recorded player answer for auditability and anti-cheat validation",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "questionId": { "type": "string" },
+        "selectedOptionIndex": { "type": "integer" },
+        "responseMillis": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "sessionId", "questionId", "selectedOptionIndex", "createdAt"]
+    },
+    "ScoreLedger": {
+      "title": "ScoreLedger",
+      "description": "Verified score ledger written by backend",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "points": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "sessionId", "points", "createdAt"]
+    },
+    "RewardLedger": {
+      "title": "RewardLedger",
+      "description": "Verified XP/coin/medal reward grant",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "xp": { "type": "integer" },
+        "coins": { "type": "integer" },
+        "medals": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "xp", "coins", "medals", "createdAt"]
+    },
+    "CharacterDef": {
+      "title": "CharacterDef",
+      "description": "Cosmetic hero character metadata",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "bio": { "type": "string" },
+        "accentColorHex": { "type": "string" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["title", "bio", "accentColorHex", "active"]
+    },
+    "WorldDef": {
+      "title": "WorldDef",
+      "description": "Fantasy territory definition",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "description": { "type": "string" },
+        "order": { "type": "integer" },
+        "published": { "type": "boolean" }
+      },
+      "required": ["title", "order", "published"]
+    },
+    "StageDef": {
+      "title": "StageDef",
+      "description": "Stage metadata within a world",
+      "type": "object",
+      "properties": {
+        "worldId": { "type": "integer" },
+        "stageNumber": { "type": "integer" },
+        "title": { "type": "string" },
+        "published": { "type": "boolean" }
+      },
+      "required": ["worldId", "stageNumber", "title", "published"]
+    },
+    "MissionDef": {
+      "title": "MissionDef",
+      "description": "Daily, weekly, or story mission definition",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "missionType": { "type": "string", "enum": ["DAILY", "WEEKLY", "STORY"] },
+        "xpReward": { "type": "integer" },
+        "coinReward": { "type": "integer" },
+        "published": { "type": "boolean" }
+      },
+      "required": ["title", "missionType", "xpReward", "coinReward", "published"]
+    },
+    "QuestionAdmin": {
+      "title": "QuestionAdmin",
+      "description": "Full question record with answer (admin-only)",
+      "type": "object",
+      "properties": {
+        "questionText": { "type": "string" },
+        "correctOptionIndex": { "type": "integer" },
+        "category": { "type": "string", "enum": ["SPECIALIZED", "ENTERTAINMENT"] },
+        "publicationStatus": { "type": "string", "enum": ["DRAFT", "PUBLISHED", "ARCHIVED"] }
+      },
+      "required": ["questionText", "correctOptionIndex", "category", "publicationStatus"]
+    },
+    "PublishedQuestion": {
+      "title": "PublishedQuestion",
+      "description": "Approved question prompt without correct answer exposed",
+      "type": "object",
+      "properties": {
+        "questionText": { "type": "string" },
+        "category": { "type": "string", "enum": ["SPECIALIZED", "ENTERTAINMENT"] },
+        "publicationStatus": { "type": "string", "enum": ["PUBLISHED"] },
+        "version": { "type": "integer" }
+      },
+      "required": ["questionText", "category", "publicationStatus", "version"]
+    },
+    "AchievementRecord": {
+      "title": "AchievementRecord",
+      "description": "Player achievement progress",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "achievementKey": { "type": "string" },
+        "unlocked": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "achievementKey", "unlocked", "updatedAt"]
+    },
+    "InventoryRecord": {
+      "title": "InventoryRecord",
+      "description": "Player cosmetic inventory item",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "itemKey": { "type": "string" },
+        "equipped": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "itemKey", "equipped", "updatedAt"]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "description": "Verified leaderboard ranking entry",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "nickname": { "type": "string" },
+        "selectedCharacterId": { "type": "string" },
+        "level": { "type": "integer" },
+        "score": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "nickname", "selectedCharacterId", "level", "score", "updatedAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "In-game Persian fantasy announcement",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "badgeText": { "type": "string" },
+        "jalaliDate": { "type": "string" },
+        "active": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "body", "active", "updatedAt"]
+    },
+    "GameSettings": {
+      "title": "GameSettings",
+      "description": "Economy and sync settings configured by admin",
+      "type": "object",
+      "properties": {
+        "baseCorrectScore": { "type": "integer" },
+        "stageXpReward": { "type": "integer" },
+        "stageCoinReward": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["baseCorrectScore", "stageXpReward", "stageCoinReward", "updatedAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable administrator audit trail",
+      "type": "object",
+      "properties": {
+        "actorUid": { "type": "string" },
+        "action": { "type": "string" },
+        "targetPath": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["actorUid", "action", "targetPath", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": { "$ref": "#/entities/UserProfile" }, "description": "Player profiles" },
+    "/characters/{characterId}": { "schema": { "$ref": "#/entities/CharacterDef" }, "description": "Hero characters" },
+    "/worlds/{worldId}": { "schema": { "$ref": "#/entities/WorldDef" }, "description": "Game territories" },
+    "/stages/{stageId}": { "schema": { "$ref": "#/entities/StageDef" }, "description": "Stage definitions" },
+    "/missions/{missionId}": { "schema": { "$ref": "#/entities/MissionDef" }, "description": "Missions" },
+    "/questions/{questionId}": { "schema": { "$ref": "#/entities/QuestionAdmin" }, "description": "Admin-only question bank with answers" },
+    "/publishedQuestions/{questionId}": { "schema": { "$ref": "#/entities/PublishedQuestion" }, "description": "Sanitized approved questions without answers" },
+    "/gameSessions/{sessionId}": { "schema": { "$ref": "#/entities/GameSession" }, "description": "Pending and verified gameplay sessions" },
+    "/answers/{answerId}": { "schema": { "$ref": "#/entities/AnswerRecord" }, "description": "Player answer audit log" },
+    "/scores/{scoreId}": { "schema": { "$ref": "#/entities/ScoreLedger" }, "description": "Authoritative score grants" },
+    "/rewards/{rewardId}": { "schema": { "$ref": "#/entities/RewardLedger" }, "description": "Authoritative reward grants" },
+    "/achievements/{achievementId}": { "schema": { "$ref": "#/entities/AchievementRecord" }, "description": "Player achievement unlocks" },
+    "/inventory/{itemId}": { "schema": { "$ref": "#/entities/InventoryRecord" }, "description": "Player cosmetic inventory" },
+    "/leaderboards/{entryId}": { "schema": { "$ref": "#/entities/LeaderboardEntry" }, "description": "Validated online leaderboard" },
+    "/announcements/{announcementId}": { "schema": { "$ref": "#/entities/Announcement" }, "description": "In-game announcements" },
+    "/settings/{settingId}": { "schema": { "$ref": "#/entities/GameSettings" }, "description": "Economy settings" },
+    "/auditLogs/{logId}": { "schema": { "$ref": "#/entities/AuditLog" }, "description": "Admin audit logs" }
+  }
+}

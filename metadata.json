@@ -1,0 +1,6 @@
+{
+  "name": "پارسمیندا و قهرمانان تأمین",
+  "description": "بازی ماجراجویی و فانتزی آفلاین‌محور با حال‌وهوای هنر ایرانی برای خانواده بزرگ سازمان تأمین اجتماعی",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

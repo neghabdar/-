@@ -1,0 +1,886 @@
+# MASTER BUILD PROMPT — ZERO BRANCH
+## Phase 1: Native Android Offline-First Game + Online Backend Foundation
+
+Act as a senior Android game developer, software architect, Firebase engineer, UI/UX designer, and 2D fantasy game art director.
+
+Build Phase 1 of a polished, expandable Android game called:
+
+**ZERO BRANCH | شعبه صفر**
+
+Tagline in Persian:
+«اینجا هر پرونده یک ماجراست!»
+
+This is a fantasy adventure game for employees of the administrative and financial departments of a Social Security branch in Iran.
+
+The game must feel like a premium, colorful, imaginative mobile RPG — NOT an administrative application, NOT an exam application, and NOT a boring quiz app.
+
+The application must be native Android, offline-first, fully functional without an internet connection for core gameplay, and architected for future expansion.
+
+---
+
+# 1. TECHNICAL ARCHITECTURE
+
+Build a native Android application using:
+
+- Kotlin
+- Jetpack Compose
+- Material 3, customized with a fantasy game design system
+- MVVM architecture
+- Repository pattern
+- Room database for local storage
+- DataStore for local preferences
+- WorkManager for background synchronization
+- Firebase Authentication
+- Cloud Firestore
+- Firebase App Check where supported
+- A clean and modular project structure
+
+Use stable, compatible library versions.
+
+The project must be maintainable and suitable for future development in Android Studio.
+
+IMPORTANT:
+This is an offline-first Android game with a separate online web administration panel planned as part of Phase 1.
+
+Use one shared Firebase project and a documented Firestore data contract for both applications.
+
+The Android application must never depend on an active internet connection to launch, open the map, play downloaded missions, answer questions, or view locally saved progress.
+
+Do not put secret keys, privileged credentials, or administrator permissions inside the Android application.
+
+---
+
+# 2. LANGUAGE AND RTL
+
+The entire user interface must be Persian.
+
+Requirements:
+- Proper right-to-left layout.
+- Correct Persian typography.
+- Persian digits in the UI.
+- Correct Persian punctuation and text direction.
+- Support for long Persian text without clipping.
+- Use a beautiful Persian font such as Vazirmatn, if licensing and availability permit.
+- English should appear only where technically necessary, such as internal identifiers.
+
+All game content, menus, buttons, notifications, dialogues, and error messages must be in Persian.
+
+---
+
+# 3. VISUAL ART DIRECTION — VERY IMPORTANT
+
+Create a visually impressive, premium fantasy adventure game.
+
+The art direction should combine:
+
+- Persian fantasy illustration
+- Colorful cartoon RPG characters
+- Magical castles and treasure rooms
+- Enchanted forests
+- Ancient libraries and mysterious scrolls
+- Magical machines and technology laboratories
+- Cute and humorous monsters
+- Beautiful 2D game environments
+- Rich depth, layered backgrounds, subtle lighting and shadows
+- High-quality gradients and glass-like panels
+- Elegant turquoise, deep blue, indigo, violet and restrained gold accents
+
+The overall appearance should be modern, magical, playful and professional.
+
+Do not create a generic business dashboard.
+
+Do not use a plain white background with ordinary Material buttons.
+
+Do not use excessive gold borders or an overly formal governmental visual style.
+
+The interface should feel like a professionally art-directed mobile RPG.
+
+Use custom illustrations, character artwork, background scenes, monster artwork, icons and decorative elements.
+
+Prefer original generated or locally bundled assets with appropriate usage rights.
+
+If an image asset cannot be generated, create an attractive vector illustration or Compose Canvas fallback. Never leave empty image placeholders or broken image URLs.
+
+All important game artwork must be bundled locally so it works offline.
+
+Create consistent artwork and visual identity across all screens.
+
+Use smooth transitions, subtle particle effects, animated rewards, button feedback, and lightweight victory animations.
+
+Optimize all artwork for mobile performance.
+
+---
+
+# 4. GAME STORY
+
+The player enters a magical world called:
+
+«سرزمین صفر»
+
+A villain named:
+
+«سلطان کاغذباز»
+
+has disrupted the balance of the world.
+
+He has hidden important keys, mixed up financial numbers, scattered mysterious documents, corrupted magical machines, and trapped the guardians of six fantasy territories.
+
+The player becomes a hero and must explore the world, complete missions, solve puzzles, defeat monsters, collect magical objects, and eventually confront the Sultan.
+
+The story must be humorous, friendly and adventurous.
+
+Avoid frightening imagery or insulting real employees or departments.
+
+All characters, documents, figures and scenarios must be fictional.
+
+Never use real employee information, real insured-person information, actual organizational files, or confidential Social Security data.
+
+---
+
+# 5. SIX GAME WORLDS
+
+Create the world map with six visually distinct territories.
+
+For Phase 1, fully implement the first two territories and display the remaining four as attractive locked territories.
+
+WORLD 1 — قلعه خزانه
+Stages 1–5.
+
+Theme:
+Treasury, accounting, calculations, financial documents and discrepancy detection.
+
+Boss:
+اژدهای مغایرت
+
+WORLD 2 — شهر کارگزینی
+Stages 6–10.
+
+Theme:
+Payroll, personnel, benefits, leave and administrative challenges.
+
+Boss:
+غول اضافه‌کاری
+
+WORLD 3 — جنگل بخشنامه‌ها
+Stages 11–15.
+
+WORLD 4 — برج مکاتبات
+Stages 16–20.
+
+WORLD 5 — آزمایشگاه هوش و فناوری
+Stages 21–25.
+
+WORLD 6 — میدان قهرمانان
+Stages 26–30.
+
+For now, worlds 3 to 6 should appear as locked, illustrated locations with their names and short descriptions.
+
+Do not implement their missions yet.
+
+Design the data model so these worlds can be activated later without redesigning the application.
+
+---
+
+# 6. FIRST TWO WORLDS — 10 PLAYABLE STAGES
+
+Implement the following ten stages with real gameplay.
+
+WORLD 1: قلعه خزانه
+
+1. دروازه اسرارآمیز
+   Introduce the treasury and the player.
+
+2. گاوصندوق گمشده
+   Solve a simple financial discrepancy.
+
+3. اتاق اسناد
+   Find inconsistencies in fictional financial records.
+
+4. پل اعداد
+   Solve a short sequence of numerical puzzles.
+
+5. نبرد با اژدهای مغایرت
+   Final boss battle of the first world.
+
+WORLD 2: شهر کارگزینی
+
+6. میدان ورود
+   Discover the personnel city.
+
+7. پرونده مرموز
+   Find missing information in a fictional personnel record.
+
+8. برج محاسبات
+   Solve payroll-style arithmetic puzzles using fictional figures.
+
+9. راهروی تصمیم‌ها
+   Arrange administrative operations in the correct sequence.
+
+10. نبرد با غول اضافه‌کاری
+    Final boss battle of the second world.
+
+Each stage must have:
+- A title
+- A short story
+- A clear objective
+- One or more playable challenges
+- A difficulty level
+- A reward
+- Completion status
+- Bronze, silver and gold completion ratings
+
+Unlock the next stage after successful completion of the previous stage.
+
+Completing Stage 5 unlocks World 2.
+
+Completing Stage 10 unlocks a clearly visible future-content screen for World 3.
+
+Allow players to replay completed stages, but do not award unlimited repeatable rewards.
+
+---
+
+# 7. PLAYER CHARACTERS
+
+Create six selectable characters with distinctive fantasy artwork:
+
+1. استاد حسابگر
+2. کارآگاه پرونده
+3. جادوگر بخشنامه
+4. فرمانده مکاتبات
+5. نابغه اکسل
+6. قهرمان ناشناس
+
+Each character needs:
+- A unique illustrated portrait
+- A full character illustration
+- A short Persian biography
+- A distinctive color identity
+- A small visual personality animation
+
+Characters are cosmetic choices only.
+
+Do not give one character an unfair scoring advantage.
+
+Allow the player to select a nickname.
+
+Do not require the player's real name to appear publicly.
+
+---
+
+# 8. IMPLEMENT THREE REAL MINI-GAMES
+
+For Phase 1, implement these three mini-games completely.
+
+MINI-GAME A — گاوصندوق اسرارآمیز
+
+Show fictional financial figures and ask the player to calculate the difference or find the missing amount.
+
+Include:
+- Numerical input or multiple-choice answers
+- Correct/incorrect feedback
+- A short explanation
+- Reward animation
+
+Example:
+
+First amount: 1250
+Second amount: 2750
+Actual total: 4000
+Recorded amount: 3800
+
+Question:
+اختلاف واقعی چقدر است؟
+
+Correct answer: 200.
+
+MINI-GAME B — پرونده گمشده
+
+Display a fictional document containing several fields.
+
+Ask the player to identify the incorrect, missing or inconsistent field.
+
+Use completely invented names and figures.
+
+MINI-GAME C — نبرد با هیولا
+
+Display an animated friendly monster.
+
+The player answers three short questions.
+
+Each correct answer damages the monster.
+
+Incorrect answers reduce the player's available opportunities.
+
+Show a victory animation and a clear result screen.
+
+Keep every mini-game playable offline.
+
+The other four mini-games should be designed for future development but do not need to be implemented in this phase.
+
+---
+
+# 9. QUESTIONS DATABASE
+
+Create an initial local question bank with at least 60 sample questions.
+
+Use two content categories:
+
+A. SPECIALIZED:
+- Accounting
+- Financial calculations
+- Payroll and personnel
+- Administrative procedures
+- Basic office technology
+
+B. ENTERTAINMENT:
+- Logic
+- General knowledge
+- Word puzzles
+- Numerical riddles
+- Funny fictional challenges
+
+Use approximately 60% entertainment and 40% specialized questions across the general mission pool.
+
+Each question must contain:
+
+- ID
+- Persian question text
+- Answer options when applicable
+- Correct answer
+- Explanation
+- Category
+- Difficulty
+- Question type
+- Source
+- Version
+- Publication status
+
+IMPORTANT:
+Use invented educational examples.
+
+Do not present unverified legal or Social Security regulations as authoritative facts.
+
+Specialized regulatory questions must remain unpublished until reviewed and approved by an administrator.
+
+Store the initial approved questions locally so they remain playable offline.
+
+Prepare the structure for future question synchronization from the online admin panel.
+
+Never expose correct answers to the public client in an online request.
+
+---
+
+# 10. GAME ECONOMY
+
+Implement four separate player values.
+
+XP:
+Used for player levels.
+
+COINS:
+Used for virtual cosmetic purchases.
+
+MEDALS:
+Used for achievements.
+
+SCORE:
+Used for competitive rankings.
+
+Suggested rewards:
+
+- Correct answer: 100 base score
+- Speed bonus: up to 30 score
+- Completing without mistakes: 20 score
+- Special mission bonus: 50 score
+- Completing a stage: 100 XP
+- Completing a normal stage: 25 coins
+
+These values must be configurable from the online administration panel.
+
+Create eight initial player levels:
+
+1. تازه‌وارد سرزمین صفر
+2. جستجوگر
+3. ماجراجو
+4. کاوشگر
+5. استاد مأموریت
+6. قهرمان قلمرو
+7. فرمانده
+8. افسانه سرزمین صفر
+
+Implement a local progress screen showing:
+- Current level
+- XP progress
+- Coins
+- Medals
+- Total score
+- Completed stages
+- Achievements
+
+Create a basic cosmetic inventory architecture for future expansion.
+
+Do not implement real-money purchases.
+
+Do not create pay-to-win mechanics.
+
+---
+
+# 11. OFFLINE-FIRST FUNCTIONALITY
+
+This is a critical requirement.
+
+The app must work without internet.
+
+Use Room database as the local source of gameplay data.
+
+Store locally:
+- Player profile
+- Selected character
+- World and stage data
+- Approved question bank
+- Mission definitions
+- Player progress
+- XP
+- Coins
+- Medals
+- Local achievements
+- Game session history
+- Pending synchronization operations
+
+When offline:
+- The app must launch normally.
+- The player must be able to continue the story.
+- The map must be accessible.
+- Downloaded missions must work.
+- Mini-games must function.
+- Progress must be saved locally.
+- No blocking internet error should appear.
+
+When online:
+- Authenticate or refresh the player session.
+- Synchronize local progress.
+- Download approved content updates.
+- Upload pending gameplay results.
+- Receive updated announcements and settings.
+- Refresh online rankings.
+
+Use WorkManager for reliable background synchronization.
+
+Implement retry logic and clear sync status indicators.
+
+Avoid duplicate reward transactions.
+
+Use unique operation IDs and idempotent synchronization.
+
+IMPORTANT SECURITY RULE:
+
+Offline results must be marked as pending verification.
+
+Do not allow the Android client to directly modify authoritative online XP, coins, medals or leaderboard scores.
+
+When the device reconnects, send the pending results to a trusted backend validation process.
+
+Only validated results may enter the official online leaderboard.
+
+If the backend cannot verify an offline result, preserve the local history and show an appropriate pending or rejected status without deleting the player's progress.
+
+Implement conflict handling for synchronization.
+
+Never silently overwrite newer server data with older local data.
+
+---
+
+# 12. REQUIRED SCREENS
+
+Build the following polished screens:
+
+1. Splash screen
+2. Welcome screen
+3. Initial player setup
+4. Nickname selection
+5. Character selection
+6. Main home screen
+7. Fantasy world map
+8. World detail screen
+9. Stage selection screen
+10. Mission introduction screen
+11. Mini-game screens
+12. Boss battle screen
+13. Mission result screen
+14. Player profile
+15. Achievements
+16. Inventory
+17. Settings
+18. Synchronization status screen
+19. Announcements screen
+20. Future content / locked worlds screen
+
+The main bottom navigation should contain:
+
+- خانه
+- نقشه
+- افتخارات
+- کوله‌پشتی
+- پروفایل
+
+The home screen must prominently display:
+
+- Player character
+- Nickname
+- Level and XP
+- Coin balance
+- Continue story button
+- Daily mission
+- Last completed stage
+- Short fantasy announcement
+
+Do not make the home screen look like a business dashboard.
+
+---
+
+# 13. ONLINE ADMINISTRATION BACKEND FOUNDATION
+
+The Android app must be ready to connect to a separate online web administration application.
+
+Use Firebase Authentication and Cloud Firestore.
+
+Prepare a clear, documented data contract for these collections:
+
+- users
+- characters
+- worlds
+- stages
+- missions
+- questions
+- gameSessions
+- answers
+- scores
+- rewards
+- achievements
+- inventory
+- leaderboards
+- announcements
+- settings
+- auditLogs
+
+Support these roles:
+
+- player
+- admin
+
+Use secure role-based access.
+
+Never allow a player to become an admin by changing a local preference or client-side field.
+
+Administrator roles must be controlled through trusted server-side authorization.
+
+Prepare server-side interfaces for:
+- Verifying gameplay results
+- Publishing approved questions
+- Updating mission content
+- Updating rewards
+- Synchronizing player progress
+- Managing announcements
+
+If server-side functions are not available in the current Android build environment, create clearly defined backend interfaces and document the exact Firebase or Cloud Functions integration required later.
+
+Do not pretend that an online admin panel has already been implemented if it has not.
+
+The separate online web administration panel will be built in a subsequent connected web project using the same Firebase project and schema.
+
+---
+
+# 14. FUTURE EXPANSION
+
+The application must support future development without rewriting its core.
+
+Design for:
+
+- All six worlds and 30 stages
+- Seven mini-games
+- Six boss battles
+- More player characters
+- New missions downloaded from the server
+- New question categories
+- Cosmetic store
+- Weekly and monthly competitions
+- Daily and weekly missions
+- Online leaderboard
+- Special administrator events
+- AI-assisted question suggestions with administrator approval
+- Additional languages if needed
+
+Use data-driven game content.
+
+Do not hardcode all mission logic directly into UI screens.
+
+Separate content, gameplay rules, UI and data layers.
+
+---
+
+# 15. TESTING AND QUALITY REQUIREMENTS
+
+Before declaring the project complete:
+
+1. Verify the application builds successfully.
+2. Run the app in the Android emulator.
+3. Verify the onboarding process.
+4. Verify character selection.
+5. Verify the world map.
+6. Complete at least one stage in World 1.
+7. Complete the vault puzzle.
+8. Verify XP and coin rewards.
+9. Close and reopen the app and verify saved progress.
+10. Enable airplane mode and repeat gameplay.
+11. Verify offline progress persistence.
+12. Re-enable internet and test synchronization.
+13. Verify duplicate synchronization does not create duplicate rewards.
+14. Verify locked stages cannot be accessed prematurely.
+15. Verify the Persian RTL layout on different screen sizes.
+16. Verify that no real organizational data is included.
+
+Create a README file explaining:
+- Project architecture
+- How to run the app
+- Firebase setup
+- Firestore data structure
+- Offline synchronization
+- How to add a new world
+- How to add a stage
+- How to add a question
+- How to export and continue in Android Studio
+
+---
+
+# 16. DEVELOPMENT APPROACH
+
+Do not produce only a design prototype.
+
+Build a functional application with real navigation, persistent local data, playable missions and working game logic.
+
+Prioritize a stable, beautiful, fully functional first version over excessive unfinished features.
+
+Do not skip major requirements silently.
+
+If a feature cannot be implemented in the current environment, clearly identify it and provide a working fallback.
+
+Start by creating the project architecture, theme system, local database, navigation, initial assets and onboarding.
+
+Then implement the first two worlds and ten playable stages.
+
+Finally, test the offline gameplay and synchronization foundation.
+
+The final result must feel like a polished fantasy mobile game that employees would genuinely enjoy opening during their free time.
+
+**Project identity: ZERO BRANCH — شعبه صفر**
+
+**Persian tagline: اینجا هر پرونده یک ماجراست!**# ZERO BRANCH — ONLINE ADMIN PANEL
+## Phase 1 — Connected Web Administration System
+
+Build a separate, secure, responsive web administration panel for the Android game ZERO BRANCH (شعبه صفر).
+
+This web application must connect to the SAME Firebase project and Firestore database used by the Android application.
+
+Technology:
+- React
+- TypeScript
+- Modern responsive web UI
+- Firebase Authentication
+- Cloud Firestore
+- Secure server-side operations for privileged actions
+
+The panel must be entirely online.
+
+Persian language and RTL layout are mandatory.
+
+Design:
+Create a premium fantasy administration interface inspired by the visual identity of ZERO BRANCH:
+- Deep navy and turquoise
+- Restrained gold accents
+- Magical illustrations
+- Elegant cards
+- Clear charts
+- Professional typography
+- Modern responsive layout
+
+This is an administration panel for game management, not an ordinary corporate dashboard.
+
+ADMIN SECTIONS:
+
+1. Dashboard
+- Total players
+- Active players
+- Completed missions
+- Most popular stages
+- New players
+- Synchronization status
+- Weekly and monthly activity
+
+2. Player Management
+- Search players
+- View nickname, level and progress
+- Activate or deactivate accounts
+- Assign roles through secure server-side authorization
+- View gameplay history
+- Never expose private authentication credentials
+
+3. World and Stage Management
+- Manage six worlds
+- Add and edit stages
+- Set stage order
+- Configure unlock requirements
+- Publish or unpublish stages
+- Manage descriptions and artwork
+
+4. Mission Management
+- Create missions
+- Assign missions to stages
+- Configure mini-game types
+- Set difficulty and rewards
+- Publish or unpublish missions
+
+5. Question Bank
+- Add, edit and archive questions
+- Manage categories
+- Manage difficulty
+- Manage correct answers
+- Add explanations and references
+- Review and approve specialized questions
+- Import and export questions
+- Keep unpublished questions hidden from players
+
+6. Rewards and Economy
+- Configure XP
+- Configure coins
+- Configure medals
+- Configure score rules
+- Manage cosmetic rewards
+- Prevent unauthorized reward manipulation
+
+7. Leaderboards
+- Weekly rankings
+- Monthly rankings
+- Overall rankings
+- Validated score history
+- Suspicious score activity
+
+8. Announcements and Events
+- Create announcements
+- Publish game events
+- Set start and end dates
+- Create special missions
+
+9. Settings
+- Game configuration
+- Offline synchronization settings
+- Reward limits
+- Mission availability
+- Question distribution
+- Version information
+
+10. Audit Logs
+- Record administrator actions
+- Record publication changes
+- Record reward configuration changes
+- Record player-management actions
+
+SECURITY:
+- Use Firebase Authentication.
+- Enforce server-side admin authorization.
+- Use Firestore Security Rules.
+- Never trust client-provided reward values.
+- Never expose privileged service credentials in frontend code.
+- Prevent players from modifying authoritative scores.
+- Preserve data integrity during synchronization.
+
+IMPORTANT:
+Connect to the existing Firebase project and existing collection schema.
+
+Do not create a separate unrelated database.
+
+If the Firebase project configuration is missing, stop and request the required configuration rather than inventing project IDs or credentials.
+
+Build a functional administration application, not just a static mockup.
+
+Provide setup instructions, security rules, backend integration requirements and deployment instructions.
+
+The interface must be fully usable on desktop and mobile browsers.### MANDATORY VISUAL IDENTITY – AUTHENTIC IRANIAN ART STYLE
+
+The entire game, ZERO BRANCH (شعبه صفر), MUST use a distinctive, joyful, colorful and authentic Iranian visual identity, inspired by the artistic atmosphere and visual language of the Persian word game "Amirza".
+
+This is a mandatory design requirement, not an optional theme.
+
+**All visual assets must follow Iranian traditional art and culture:**
+
+1. Backgrounds: Persian miniature landscapes, traditional Iranian bazaars, gardens, historical architecture, Persian courtyards, tilework and traditional buildings.
+2. Characters: charming illustrated characters inspired by Iranian traditional clothing, folklore, historical costumes and Persian storytelling.
+3. Icons: every game icon must be custom-designed using Persian motifs, traditional objects, miniature art and Iranian decorative patterns.
+4. Medals and badges: inspired by Persian geometric patterns, Shahnameh imagery, traditional ornaments and Iranian craftsmanship.
+5. Buttons and menus: use Persian ornamental frames, colorful tile patterns and traditional Iranian decorative details.
+6. Maps: illustrated in the style of old Persian manuscripts and miniature maps.
+7. Rewards and treasures: traditional Persian chests, coins, carpets, pottery and decorative objects.
+8. Typography: use beautiful, readable Persian typography with correct RTL layout.
+9. Colors: turquoise, lapis blue, Persian blue, warm red, saffron, cream, jade green and carefully balanced gold.
+10. Sound design: use suitable Iranian instrumental inspirations and traditional sound effects.
+
+**STRICTLY AVOID:**
+- Generic Western fantasy RPG aesthetics.
+- Medieval European castles, knights, dragons and Viking themes.
+- Generic stock icons or unrelated emoji as final game assets.
+- Western cartoon character designs.
+- Inconsistent visual styles between different game screens.
+
+Every screen must look like part of the same illustrated Iranian fantasy world.
+
+Create original, cohesive, high-quality Iranian-inspired artwork. Do not copy Amirza's copyrighted artwork or assets; use it only as a visual inspiration for the overall atmosphere and style.
+
+The result should feel like entering a living, colorful Iranian illustrated storybook, while retaining the usability and polish of a modern mobile game.### CRITICAL REQUIREMENT: THE ENTIRE APPLICATION MUST BE IN PERSIAN (FARSI)
+
+The application MUST be completely Persian-language (Farsi), designed specifically for Iranian users.
+
+This requirement applies to EVERY screen, menu, button, dialog, notification, game instruction, character description, question, answer, leaderboard, profile, achievement, error message, settings page and all other user-facing content.
+
+**Language and localization rules:**
+
+1. All user-facing text MUST be written in natural, fluent and grammatically correct Persian.
+2. The entire user interface MUST use Right-to-Left (RTL) layout.
+3. All menus, buttons, navigation bars, forms, tables and game elements MUST follow Persian reading direction.
+4. Use Persian digits (۰۱۲۳۴۵۶۷۸۹) throughout the user interface.
+5. Use the Iranian Solar Hijri calendar (Jalali calendar) for all displayed dates.
+6. All currency values must be displayed in Iranian Toman.
+7. Do not display English words, labels, placeholder text or sample content anywhere in the user interface.
+8. Do not use Finglish or transliterated Persian.
+9. Use appropriate Persian fonts with full support for Persian characters, connected letters and correct text shaping.
+10. Ensure correct display of Persian punctuation, half-spaces, Arabic/Persian character differences and text alignment.
+11. All game stories, missions, characters, questions, answers, rewards and achievements must be written in Persian.
+12. The leaderboard, player profiles, medals, rankings and notifications must also be completely Persian.
+
+**Important distinction:**
+
+- Source code, class names, variable names, database fields, API identifiers and technical documentation may use English.
+- The actual application interface and all content visible to players MUST be Persian.
+- English must never appear as a fallback language in the application.
+
+Before completing the project, inspect EVERY screen and eliminate any remaining English UI text.
+
+The final application must feel like a professionally localized Iranian mobile game, not an English application translated partially into Persian.IMPORTANT PROJECT RENAMING:
+
+The official application name is:
+
+«پارسمیندا و قهرمانان تأمین»
+
+Brand name: پارسمیندا
+Game title: قهرمانان تأمین
+
+The game is designed for the entire Iranian Social Security Organization community, including:
+- Social Security branches
+- Hospitals
+- Medical centers and clinics
+- Provincial general directorates
+- Headquarters and administrative departments
+
+Completely remove the previous name "ZERO BRANCH" and all references to "شعبه صفر" from the application, UI, game story, database seed content, splash screen, logos and documentation.
+
+All user-facing names and branding must be Persian.
+
+The game world must represent the entire Social Security community, not just administrative branches.
