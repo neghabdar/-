@@ -1,5 +1,6 @@
 package com.example.data.remote
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.util.Log
@@ -8,12 +9,12 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
-import com.example.R
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -30,12 +31,51 @@ import kotlinx.coroutines.withContext
 object AuthManager {
     private const val TAG = "Auth"
 
-    fun authStateFlow(auth: FirebaseAuth = Firebase.auth): Flow<FirebaseUser?> = callbackFlow {
+    fun isFirebaseAvailable(context: Context): Boolean {
+        return try {
+            FirebaseApp.getApps(context.applicationContext).isNotEmpty()
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    fun authOrNull(context: Context): FirebaseAuth? {
+        return if (isFirebaseAvailable(context)) {
+            try {
+                Firebase.auth
+            } catch (_: Exception) {
+                null
+            }
+        } else {
+            null
+        }
+    }
+
+    fun authStateFlow(auth: FirebaseAuth?): Flow<FirebaseUser?> = callbackFlow {
+        if (auth == null) {
+            trySend(null)
+            awaitClose {}
+            return@callbackFlow
+        }
         val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             trySend(firebaseAuth.currentUser)
         }
         auth.addAuthStateListener(listener)
         awaitClose { auth.removeAuthStateListener(listener) }
+    }
+
+    @SuppressLint("DiscouragedApi")
+    private fun getDefaultWebClientId(context: Context): String? {
+        return try {
+            val resId = context.resources.getIdentifier(
+                "default_web_client_id",
+                "string",
+                context.packageName
+            )
+            if (resId != 0) context.getString(resId).takeIf { it.isNotBlank() } else null
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun attemptAutoSignIn(
@@ -44,14 +84,16 @@ object AuthManager {
         onAuthSuccess: (FirebaseUser) -> Unit = {},
         onUnauthenticated: () -> Unit = {}
     ) {
-        val existing = Firebase.auth.currentUser
+        val auth = authOrNull(context) ?: run {
+            onUnauthenticated()
+            return
+        }
+        val existing = auth.currentUser
         if (existing != null) {
             onAuthSuccess(existing)
             return
         }
-        val clientId = try {
-            context.getString(R.string.default_web_client_id)
-        } catch (_: Exception) {
+        val clientId = getDefaultWebClientId(context) ?: run {
             onUnauthenticated()
             return
         }
@@ -91,9 +133,11 @@ object AuthManager {
         onAuthError: (String) -> Unit,
         onAuthCancelled: () -> Unit = {}
     ) {
-        val clientId = try {
-            context.getString(R.string.default_web_client_id)
-        } catch (_: Exception) {
+        val auth = authOrNull(context) ?: run {
+            onAuthError("در این نسخه سرویس ورود ابری پیکربندی نشده است؛ بازی به‌صورت آفلاین ادامه دارد.")
+            return
+        }
+        val clientId = getDefaultWebClientId(context) ?: run {
             onAuthError("پیکربندی ورود با گوگل یافت نشد.")
             return
         }
@@ -149,7 +193,7 @@ object AuthManager {
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to clear credential state: ${e.message}")
                 } finally {
-                    Firebase.auth.signOut()
+                    authOrNull(context)?.signOut()
                     onSignOutComplete()
                 }
             }

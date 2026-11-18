@@ -18,12 +18,11 @@ import com.example.data.local.WorldEntity
 import com.example.data.model.LevelProgression
 import com.example.data.model.StageRating
 import com.example.data.model.SyncStatus
+import com.example.data.remote.AuthManager
 import com.example.data.remote.EconomyConfig
 import com.example.data.remote.FirestoreSyncRepository
 import com.example.data.remote.SyncWorker
 import com.example.util.PersianUtils
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
@@ -257,7 +256,7 @@ class GameRepository private constructor(private val context: Context) {
         )
 
         // Enqueue reliable background WorkManager sync when online
-        if (Firebase.auth.currentUser != null) {
+        if (AuthManager.authOrNull(context)?.currentUser != null) {
             SyncWorker.enqueueImmediateSync(context)
         }
 
@@ -417,9 +416,13 @@ class GameRepository private constructor(private val context: Context) {
             prefs.recordSyncOutcome(System.currentTimeMillis(), msg)
             return Result.failure(IllegalStateException(msg))
         }
-        val uid = Firebase.auth.currentUser?.uid
+        val uid = AuthManager.authOrNull(context)?.currentUser?.uid
         if (uid.isNullOrBlank()) {
-            val msg = "برای همگام‌سازی ابری، در بخش همگام‌سازی وارد حساب گوگل شوید."
+            val msg = if (AuthManager.isFirebaseAvailable(context)) {
+                "برای همگام‌سازی ابری، در بخش همگام‌سازی وارد حساب گوگل شوید."
+            } else {
+                "حالت آفلاین کامل: اطلاعات بازی به‌طور کامل روی دستگاه شما ذخیره می‌شود."
+            }
             prefs.recordSyncOutcome(System.currentTimeMillis(), msg)
             return Result.failure(IllegalStateException(msg))
         }

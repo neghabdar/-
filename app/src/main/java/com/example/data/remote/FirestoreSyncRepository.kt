@@ -8,6 +8,7 @@ import com.example.data.local.LeaderboardCacheEntity
 import com.example.data.local.PlayerProfileEntity
 import com.example.data.model.SyncStatus
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
@@ -39,24 +40,35 @@ data class EconomyConfig(
 )
 
 class FirestoreSyncRepository(
-    private val db: FirebaseFirestore,
-    private val auth: FirebaseAuth = Firebase.auth
+    private val db: FirebaseFirestore?,
+    private val auth: FirebaseAuth? = null
 ) : BackendSyncContract {
 
     constructor(context: Context) : this(
-        FirebaseFirestore.getInstance(
-            context.applicationContext.getString(R.string.firestore_database_id)
-        )
+        db = if (FirebaseApp.getApps(context.applicationContext).isNotEmpty()) {
+            try {
+                FirebaseFirestore.getInstance(
+                    context.applicationContext.getString(R.string.firestore_database_id)
+                )
+            } catch (_: Exception) {
+                null
+            }
+        } else {
+            null
+        },
+        auth = AuthManager.authOrNull(context)
     )
 
-    private fun currentUidOrNull(): String? = auth.currentUser?.uid?.takeIf { it.isNotBlank() }
+    private fun currentUidOrNull(): String? = auth?.currentUser?.uid?.takeIf { it.isNotBlank() }
 
     override suspend fun syncUserProfile(localProfile: PlayerProfileEntity): Result<RemoteUserProfile?> {
+        val firestore = db
+            ?: return Result.failure(IllegalStateException("اتصال ابری در این نسخه فعال نیست."))
         val uid = currentUidOrNull()
             ?: return Result.failure(IllegalStateException("ابتدا با حساب گوگل وارد شوید."))
         val path = "users/$uid"
         return try {
-            val docRef = db.collection("users").document(uid)
+            val docRef = firestore.collection("users").document(uid)
             val snap = docRef.get().await()
             if (!snap.exists()) {
                 val safeNick = localProfile.nickname.trim().ifEmpty { "قهرمان تأمین" }.take(30)
@@ -102,6 +114,8 @@ class FirestoreSyncRepository(
     override suspend fun uploadPendingSessions(
         pending: List<GameSessionEntity>
     ): Result<Map<String, SyncStatus>> {
+        val firestore = db
+            ?: return Result.failure(IllegalStateException("اتصال ابری در این نسخه فعال نیست."))
         val uid = currentUidOrNull()
             ?: return Result.failure(IllegalStateException("برای همگام‌سازی ابری وارد حساب گوگل شوید."))
         val results = mutableMapOf<String, SyncStatus>()
@@ -109,7 +123,7 @@ class FirestoreSyncRepository(
             val docId = session.operationId
             val path = "gameSessions/$docId"
             try {
-                val docRef = db.collection("gameSessions").document(docId)
+                val docRef = firestore.collection("gameSessions").document(docId)
                 val existing = docRef.get().await()
                 if (!existing.exists()) {
                     val payload = mapOf(
@@ -149,12 +163,13 @@ class FirestoreSyncRepository(
     }
 
     suspend fun refreshSubmittedSessionStatuses(uid: String): Result<Map<String, SyncStatus>> {
+        val firestore = db ?: return Result.failure(IllegalStateException("اتصال ابری فعال نیست."))
         if (currentUidOrNull() != uid) {
             return Result.failure(IllegalStateException("شناسه کاربر نامعتبر است."))
         }
         val path = "gameSessions"
         return try {
-            val snap = db.collection(path)
+            val snap = firestore.collection(path)
                 .whereEqualTo("userId", uid)
                 .get()
                 .await()
@@ -178,11 +193,12 @@ class FirestoreSyncRepository(
     }
 
     override suspend fun fetchVerifiedLeaderboard(): Result<List<LeaderboardCacheEntity>> {
+        val firestore = db ?: return Result.failure(IllegalStateException("اتصال ابری فعال نیست."))
         val uid = currentUidOrNull()
             ?: return Result.failure(IllegalStateException("کاربر وارد نشده است."))
         val path = "leaderboards"
         return try {
-            val snap = db.collection(path)
+            val snap = firestore.collection(path)
                 .orderBy("score", Query.Direction.DESCENDING)
                 .limit(20)
                 .get()
@@ -213,12 +229,13 @@ class FirestoreSyncRepository(
     }
 
     override suspend fun fetchPublishedAnnouncements(): Result<List<AnnouncementEntity>> {
+        val firestore = db ?: return Result.failure(IllegalStateException("اتصال ابری فعال نیست."))
         if (currentUidOrNull() == null) {
             return Result.failure(IllegalStateException("کاربر وارد نشده است."))
         }
         val path = "announcements"
         return try {
-            val snap = db.collection(path).get().await()
+            val snap = firestore.collection(path).get().await()
             val list = snap.documents.mapNotNull { doc ->
                 val dto = doc.toObject(
                     RemoteAnnouncement::class.java,
@@ -245,12 +262,13 @@ class FirestoreSyncRepository(
     }
 
     suspend fun fetchEconomyConfig(): Result<EconomyConfig> {
+        val firestore = db ?: return Result.failure(IllegalStateException("اتصال ابری فعال نیست."))
         if (currentUidOrNull() == null) {
             return Result.failure(IllegalStateException("کاربر وارد نشده است."))
         }
         val path = "settings/economy"
         return try {
-            val doc = db.collection("settings").document("economy").get().await()
+            val doc = firestore.collection("settings").document("economy").get().await()
             if (!doc.exists()) return Result.success(EconomyConfig())
             val dto = doc.toObject(
                 RemoteGameSettings::class.java,

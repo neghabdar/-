@@ -17,9 +17,7 @@ import com.example.data.remote.AuthManager
 import com.example.data.remote.SyncWorker
 import com.example.data.repository.GameRepository
 import com.example.data.repository.StageCompletionSummary
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -57,11 +55,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _lastCompletion = MutableStateFlow<StageCompletionSummary?>(null)
     val lastCompletion: StateFlow<StageCompletionSummary?> = _lastCompletion.asStateFlow()
 
-    val currentUser: StateFlow<FirebaseUser?> = AuthManager.authStateFlow(Firebase.auth)
+    val currentUser: StateFlow<FirebaseUser?> = AuthManager.authStateFlow(AuthManager.authOrNull(application))
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = Firebase.auth.currentUser
+            initialValue = AuthManager.authOrNull(application)?.currentUser
         )
 
     private val coreFlows = combine(
